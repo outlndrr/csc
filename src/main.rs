@@ -1,11 +1,11 @@
 use clap::{Parser};
-use csc::{cli::CliArgs, get_summary, Result};
+use csc::{cli::CliArgs, get_info, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = CliArgs::parse();
 
-    get_summary(&args.name).await?;
+    get_info(&args.name).await?;
 
     Ok(())
 }

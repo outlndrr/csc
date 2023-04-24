@@ -16,3 +16,9 @@ pub struct Summary {
     pub scheduled_maintenances: Option<Vec<ScheduledMaintenance>>,
     pub status: Status
 }
+
+#[derive(Debug, Default, Clone, Deserialize)]
+pub struct Components {
+    pub page: Page,
+    pub components: Vec<Component>
+}
