@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use time::{PrimitiveDateTime, macros::format_description, format_description::well_known::Rfc3339};
 use serde::Deserialize;
+use colored::Colorize;
 
 #[derive(Debug, Default, Clone, Deserialize)]
 pub struct Component {
@@ -28,7 +29,7 @@ pub struct AffectedComponent {
     pub new_status: String
 }
 
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, PartialEq, Eq)]
 pub enum ComponentStatus {
     #[serde(rename = "operational")]
     Operational,
@@ -36,24 +37,29 @@ pub enum ComponentStatus {
     PartialOutage,
     #[serde(rename = "under_maintenance")]
     UnderMaintenance,
+    #[serde(rename = "degraded_performance")]
+    DegradedPerformance,
     #[default]
     Unknown
 }
 
 impl Display for ComponentStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ComponentStatus::Operational => write!(f, "\x1b[32mOperational\x1b[0m"),
-            ComponentStatus::PartialOutage => write!(f, "\x1b[93mRe-routed\x1b[0m"),
-            ComponentStatus::UnderMaintenance => write!(f, "\x1b[36mPartially Re-routed\x1b[0m"),
-            ComponentStatus::Unknown => write!(f, "Unknown")
-        }
+        let val = match self {
+            ComponentStatus::Operational => "Operational".green().bold(),
+            ComponentStatus::PartialOutage => "Re-routed".yellow().bold(),
+            ComponentStatus::UnderMaintenance => "Partially Re-routed".cyan().bold(),
+            ComponentStatus::DegradedPerformance => "Degraded Performance".yellow().bold(),
+            ComponentStatus::Unknown => "Unknown".white()
+        };
+
+        write!(f, "{}", val)
     }
 }
 
 impl Display for Component {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Current status for \x1b[1m{}\x1b[0m", self.name)?;
+        write!(f, "Current status for {}", self.name.bold())?;
         writeln!(f, " is {}.", self.status)?;
 
         let date = PrimitiveDateTime::parse(&self.updated_at, &Rfc3339).unwrap();
